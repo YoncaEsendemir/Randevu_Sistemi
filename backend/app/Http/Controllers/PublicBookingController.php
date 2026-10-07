@@ -179,7 +179,8 @@ class PublicBookingController extends Controller
         }
 
         // Müşteriyi telefon ile bu işletme içinde bul veya oluştur (duplicate yok).
-        $normalized = preg_replace('/\D/', '', $validated['customer_phone']);
+        // Son 10 haneye indir: 0/+90 ne olursa olsun aynı numara eşleşsin.
+        $normalized = substr(preg_replace('/\D/', '', $validated['customer_phone']), -10);
         $customer = Customer::where('user_id', $business->id)->where('phone', $normalized)->first()
             ?? Customer::create([
                 'user_id' => $business->id,
