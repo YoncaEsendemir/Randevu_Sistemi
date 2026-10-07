@@ -36,3 +36,6 @@ desktop.ini
 # === Loglar ===
 *.log
 npm-debug.log*
+
+# === Kişisel çalışma notları (repoya girmez, yerelde yedek) ===
+SONRAKI-OTURUM.md
