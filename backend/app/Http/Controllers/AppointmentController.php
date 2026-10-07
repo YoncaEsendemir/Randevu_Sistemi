@@ -115,6 +115,13 @@ class AppointmentController extends Controller
             if ($bhError) {
                 return response()->json(['message' => $bhError], 422);
             }
+
+            // Yeni saatte başka bir randevuyla çakışma var mı? (kendi kaydı hariç)
+            if ($this->hasConflict($appointment->user_id, $starts, $ends, $appointment->id)) {
+                return response()->json([
+                    'message' => 'Bu zaman aralığında zaten bir randevu var.',
+                ], 409);
+            }
         }
 
         $appointment->update($validated);
