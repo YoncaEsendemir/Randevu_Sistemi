@@ -1,0 +1,38 @@
+# === Ortam / gizli dosyalar (ASLA commit edilmez) ===
+.env
+*.env
+!*.env.example
+backend/.env
+frontend/.env
+
+# === Bağımlılıklar (çok büyük, repoya girmez) ===
+/backend/vendor
+/frontend/node_modules
+**/vendor/
+**/node_modules/
+
+# === Build çıktıları ===
+/frontend/dist
+/frontend/dist-ssr
+
+# === Laravel ===
+/backend/storage/*.key
+/backend/storage/logs/*.log
+/backend/storage/framework/cache/*
+/backend/storage/framework/sessions/*
+/backend/storage/framework/views/*
+/backend/bootstrap/cache/*.php
+
+# === Editör / IDE ===
+.vscode/
+.idea/
+*.swp
+
+# === İşletim sistemi ===
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# === Loglar ===
+*.log
+npm-debug.log*

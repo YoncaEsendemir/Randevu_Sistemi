@@ -1,0 +1,95 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: randevu_app
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    networks:
+      - randevu_network
+    depends_on:
+      - db
+
+  # Laravel scheduler - 24 saat öncesi hatırlatma SMS'i gibi zamanlı işler.
+  # schedule:work komutu bir cron benzeri döngü başlatır, cron paketi gerekmez.
+  # routes/console.php'de tanımlı Schedule tanımlarını çalıştırır.
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: randevu_scheduler
+    working_dir: /var/www
+    volumes:
+      - ./backend:/var/www
+    command: php artisan schedule:work
+    restart: unless-stopped
+    networks:
+      - randevu_network
+    depends_on:
+      - app
+      - db
+
+  webserver:
+    image: nginx:alpine
+    container_name: randevu_webserver
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+    networks:
+      - randevu_network
+
+  db:
+    image: mysql:8.4
+    container_name: randevu_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: randevu_sistemi
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_USER: randevu_user
+      MYSQL_PASSWORD: randevu_pass
+    ports:
+      - "3309:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - randevu_network
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: randevu_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8090:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    depends_on:
+      - db
+    networks:
+      - randevu_network
+
+  frontend:
+    image: node:24-alpine
+    container_name: randevu_frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    ports:
+      - "5173:5173"
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    networks:
+      - randevu_network
+
+networks:
+  randevu_network:
+    driver: bridge
+
+volumes:
+  db_data:
